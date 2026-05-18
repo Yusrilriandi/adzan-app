@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Adzan App</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top, #0b1220, #050814);
+      color: #e5e7eb;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    .badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      background: #22c55e;
+      border-radius: 20px;
+      color: black;
+      font-weight: bold;
+    }
+
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    /* CARD */
+    .card {
+      background: rgba(17, 24, 39, 0.7);
+      border: 1px solid rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      padding: 16px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      transition: 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    label {
+      font-size: 12px;
+      color: #9ca3af;
+      display: block;
+      margin-top: 10px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: #0f172a;
+      color: white;
+      outline: none;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      font-weight: bold;
+      margin-right: 5px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    /* JADWAL */
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .icon {
+      font-size: 16px;
+    }
+
+    .big {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="icon">🕌</div>
+  <h1>Adzan App</h1>
+  <div class="badge">LIVE</div>
+</div>
+
+<div class="grid">
+
+  <!-- LOKASI -->
+  <div class="card">
+    <div class="title">📍 Lokasi</div>
+
+    <label>Nama Kota</label>
+    <input id="city" />
+
+    <label>Latitude</label>
+    <input id="lat" />
+
+    <label>Longitude</label>
+    <input id="lon" />
+
+    <button onclick="saveLocation()">Simpan Lokasi</button>
+  </div>
+
+  <!-- AUDIO -->
+  <div class="card">
+    <div class="title">🔊 Audio Adzan</div>
+
+    <label>Mode Audio</label>
+    <select id="adzanMode">
+      <option value="all">ALL (Semua Sama)</option>
+      <option value="custom">CUSTOM (Per Waktu)</option>
+    </select>
+
+    <button onclick="saveAudio()">Simpan</button>
+    <button onclick="testAdzan()">Test 🔊</button>
+
+    <p id="audioInfo"></p>
+  </div>
+
+</div>
+
+<!-- JADWAL -->
+<div class="card" style="margin-top:15px;">
+  <div class="title">🕌 Jadwal Salat Hari Ini</div>
+  <div id="schedule"></div>
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
