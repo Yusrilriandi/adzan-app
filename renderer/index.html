@@ -3,178 +3,144 @@
 <head>
   <meta charset="UTF-8" />
   <title>Adzan App</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Poppins', 'sans-serif'] },
+          colors: { darkBg: '#050814', cardBg: 'rgba(17, 24, 39, 0.7)' }
+        }
+      }
+    }
+  </script>
   <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: 'Poppins', sans-serif;
-      background: radial-gradient(circle at top, #0b1220, #050814);
-      color: #e5e7eb;
-    }
-
-    /* HEADER */
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .header h1 {
-      font-size: 20px;
-      margin: 0;
-    }
-
-    .badge {
-      font-size: 12px;
-      padding: 4px 10px;
-      background: #22c55e;
-      border-radius: 20px;
-      color: black;
-      font-weight: bold;
-    }
-
-    /* GRID */
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-
-    /* CARD */
-    .card {
-      background: rgba(17, 24, 39, 0.7);
-      border: 1px solid rgba(255,255,255,0.05);
-      backdrop-filter: blur(10px);
-      padding: 16px;
-      border-radius: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      transition: 0.2s;
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
-    }
-
-    .title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: #9ca3af;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-    }
-
-    label {
-      font-size: 12px;
-      color: #9ca3af;
-      display: block;
-      margin-top: 10px;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: #0f172a;
-      color: white;
-      outline: none;
-    }
-
-    button {
-      margin-top: 10px;
-      padding: 10px 12px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: white;
-      font-weight: bold;
-      margin-right: 5px;
-    }
-
-    button:hover {
-      opacity: 0.9;
-    }
-
-    /* JADWAL */
-    .row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .icon {
-      font-size: 16px;
-    }
-
-    .big {
-      font-size: 18px;
-      font-weight: 600;
-    }
+    body { background: radial-gradient(circle at top, #0b1220, #050814); min-height: 100vh; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
   </style>
 </head>
 
-<body>
-
-<!-- HEADER -->
-<div class="header">
-  <div class="icon">🕌</div>
-  <h1>Adzan App</h1>
-  <div class="badge">LIVE</div>
-</div>
-
-<div class="grid">
-
-  <!-- LOKASI -->
-  <div class="card">
-    <div class="title">📍 Lokasi</div>
-
-    <label>Nama Kota</label>
-    <input id="city" />
-
-    <label>Latitude</label>
-    <input id="lat" />
-
-    <label>Longitude</label>
-    <input id="lon" />
-
-    <button onclick="saveLocation()">Simpan Lokasi</button>
+<body class="text-gray-200 p-6">
+  
+  <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center gap-3">
+      <div class="text-green-400">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M12 2v3"/><path d="M12 5a6 6 0 0 0-6 6v2h12v-2a6 6 0 0 0-6-6z"/><path d="M3 21h18"/><path d="M5 21v-6h14v6"/><path d="M9 21v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
+      </div>
+      <h1 class="text-2xl font-semibold text-white">Adzan App</h1>
+      <span class="text-xs px-3 py-1 bg-green-500 text-black font-bold rounded-full">LIVE</span>
+    </div>
+    
+    <button onclick="toggleLanguage()" class="flex items-center gap-2 px-3 py-1.5 bg-gray-800 border border-gray-600 rounded-lg text-sm font-semibold text-white hover:bg-gray-700 hover:border-green-500 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-300"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <span id="langText">ID</span>
+    </button>
   </div>
 
-  <!-- AUDIO -->
-  <div class="card">
-    <div class="title">🔊 Audio Adzan</div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="flex flex-col gap-6">
+      
+      <div class="bg-cardBg backdrop-blur-md border border-gray-800 p-5 rounded-2xl shadow-xl">
+        <h2 class="text-sm text-gray-400 font-semibold uppercase mb-4 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span data-i18n="locSettings">Pengaturan Lokasi</span>
+        </h2>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs text-gray-400 mb-1" data-i18n="chooseRegion">Pilih Daerah</label>
+            <select id="citySelect" class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white outline-none focus:border-green-500 text-sm" onchange="toggleLocationInputs()"></select>
+          </div>
 
-    <label>Mode Audio</label>
-    <select id="adzanMode">
-      <option value="all">ALL (Semua Sama)</option>
-      <option value="custom">CUSTOM (Per Waktu)</option>
-    </select>
+          <div id="customLocationDiv" class="hidden flex-col gap-3">
+            <div>
+              <label class="block text-xs text-gray-400 mb-1" data-i18n="customRegionName">Nama Daerah Kustom</label>
+              <input id="customCityName" type="text" data-i18n="customRegionPlaceholder" placeholder="Masukkan nama daerah baru..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white text-sm outline-none focus:border-green-500" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Latitude</label>
+                <input id="lat" type="text" class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white text-sm outline-none focus:border-green-500" />
+              </div>
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Longitude</label>
+                <input id="lon" type="text" class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white text-sm outline-none focus:border-green-500" />
+              </div>
+            </div>
+          </div>
+          <button onclick="saveLocation()" data-i18n="saveLocBtn" class="w-full mt-2 py-2.5 rounded-lg bg-gradient-to-r from-green-500 to-green-600 hover:opacity-90 font-semibold text-white transition text-sm">Simpan Lokasi</button>
+        </div>
+      </div>
 
-    <button onclick="saveAudio()">Simpan</button>
-    <button onclick="testAdzan()">Test 🔊</button>
+      <div class="bg-cardBg backdrop-blur-md border border-gray-800 p-5 rounded-2xl shadow-xl">
+        <h2 class="text-sm text-gray-400 font-semibold uppercase mb-4 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          <span data-i18n="audioSettings">Audio Adzan</span>
+        </h2>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs text-gray-400 mb-1" data-i18n="audioMode">Mode Audio</label>
+            <select id="adzanMode" class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white outline-none focus:border-green-500 text-sm" onchange="toggleAudioInputs()">
+              <option value="all" data-i18n="modeAll">Sama untuk semua waktu (Default)</option>
+              <option value="custom" data-i18n="modeCustom">Berbeda tiap waktu</option>
+            </select>
+          </div>
 
-    <p id="audioInfo"></p>
+          <div id="customAudioDiv" class="hidden flex-col gap-3 mt-3">
+            <label class="block text-xs text-green-400 mb-1" data-i18n="customAudioLabel">Pilih file .mp3 untuk masing-masing waktu:</label>
+            
+            <div class="flex items-center gap-2 text-sm">
+              <span class="w-16" data-i18n="fajr">Subuh</span> 
+              <input type="file" id="audioFajr" accept="audio/mp3" class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer"/>
+              <button onclick="testSpecificAdzan('Fajr')" class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition" title="Test Audio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="w-16" data-i18n="dhuhr">Dzuhur</span> 
+              <input type="file" id="audioDhuhr" accept="audio/mp3" class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer"/>
+              <button onclick="testSpecificAdzan('Dhuhr')" class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition" title="Test Audio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="w-16" data-i18n="asr">Ashar</span> 
+              <input type="file" id="audioAsr" accept="audio/mp3" class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer"/>
+              <button onclick="testSpecificAdzan('Asr')" class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition" title="Test Audio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="w-16" data-i18n="maghrib">Maghrib</span> 
+              <input type="file" id="audioMaghrib" accept="audio/mp3" class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer"/>
+              <button onclick="testSpecificAdzan('Maghrib')" class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition" title="Test Audio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="w-16" data-i18n="isha">Isya</span> 
+              <input type="file" id="audioIsha" accept="audio/mp3" class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer"/>
+              <button onclick="testSpecificAdzan('Isha')" class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition" title="Test Audio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+            </div>
+          </div>
+
+          <div class="flex gap-2 mt-2">
+            <button onclick="saveAudio()" data-i18n="saveAudioBtn" class="flex-1 py-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-600 font-semibold text-white transition text-sm">Simpan Audio</button>
+            
+            <button onclick="testAdzan()" class="px-5 py-2.5 rounded-lg border border-green-500 text-green-400 hover:bg-green-500 hover:text-white font-semibold transition text-sm flex items-center justify-center gap-2">
+              <span data-i18n="testBtn">Test Utama</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-cardBg backdrop-blur-md border border-gray-800 p-5 rounded-2xl shadow-xl h-fit">
+      <h2 class="text-sm text-gray-400 font-semibold uppercase mb-4 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400"><path d="M12 2v3"/><path d="M12 5a6 6 0 0 0-6 6v2h12v-2a6 6 0 0 0-6-6z"/><path d="M3 21h18"/></svg>
+        <span data-i18n="scheduleTitle">Jadwal Salat Hari Ini</span>
+      </h2>
+      <div id="schedule" class="flex flex-col gap-3">
+        </div>
+    </div>
+
   </div>
 
-</div>
-
-<!-- JADWAL -->
-<div class="card" style="margin-top:15px;">
-  <div class="title">🕌 Jadwal Salat Hari Ini</div>
-  <div id="schedule"></div>
-</div>
-
-<script src="app.js"></script>
-
+  <script src="app.js"></script>
 </body>
 </html>

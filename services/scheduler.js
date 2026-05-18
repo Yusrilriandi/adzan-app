@@ -1,7 +1,6 @@
 const schedule = require('node-schedule');
 const { Notification } = require('electron');
 const { getPrayerTimes } = require('./prayerTimes');
-const { playAdzan } = require('./audioPlayer');
 
 const prayerNames = {
   Fajr: 'Subuh',
@@ -11,16 +10,16 @@ const prayerNames = {
   Isha: 'Isya',
 };
 
-async function schedulePrayerNotifications() {
+// Tambahkan parameter callback "onPlayAudio"
+async function schedulePrayerNotifications(onPlayAudio) {
   const timings = await getPrayerTimes();
-
   console.log('Jadwal salat hari ini:');
   console.table(timings);
 
   const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
   prayers.forEach((prayer) => {
-    const time = timings[prayer].split(' ')[0]; // menghapus timezone jika ada
+    const time = timings[prayer].split(' ')[0];
     const [hour, minute] = time.split(':').map(Number);
 
     const job = schedule.scheduleJob({ hour, minute }, () => {
@@ -29,17 +28,13 @@ async function schedulePrayerNotifications() {
         body: `Saatnya salat ${prayerNames[prayer]}`,
       }).show();
 
-      playAdzan();
-      console.log(`Adzan ${prayerNames[prayer]} diputar.`);
+      console.log(`Waktu ${prayerNames[prayer]} tiba!`);
+      
+      // Kirim sinyal ke UI untuk memutar suara
+      if (onPlayAudio) {
+        onPlayAudio(prayer);
+      }
     });
-
-    if (job) {
-      console.log(
-        `${prayerNames[prayer]} dijadwalkan pukul ${hour
-          .toString()
-          .padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-      );
-    }
   });
 }
 

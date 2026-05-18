@@ -9,22 +9,21 @@ const store = new Store({
   projectName: 'adzan-app',
   cwd: configDir,
   defaults: {
-    city: 'Sambas',
-    latitude: 1.3616,
-    longitude: 109.3089,
+    language: 'id', // Default bahasa Indonesia
+    city: 'jakarta',
+    latitude: -6.2088,
+    longitude: 106.8456,
     method: 20,
-
-    adzanMode: 'all',
-
-    adzanAll: 'assets/adzan.mp3',
-
+    adzanMode: 'all', 
+    adzanAll: path.join(__dirname, '..', 'assets', 'adzan.mp3'),
     adzanCustom: {
-      Fajr: 'assets/fajr.mp3',
-      Dhuhr: 'assets/dhuhr.mp3',
-      Asr: 'assets/asr.mp3',
-      Maghrib: 'assets/maghrib.mp3',
-      Isha: 'assets/isha.mp3'
-    }
+      Fajr: '',
+      Dhuhr: '',
+      Asr: '',
+      Maghrib: '',
+      Isha: ''
+    },
+    customCities: {} 
   }
 });
 
@@ -33,7 +32,7 @@ function getConfig() {
 }
 
 function setConfig(newConfig) {
-  store.set(newConfig);
+  store.set({ ...store.store, ...newConfig });
 }
 
 module.exports = { getConfig, setConfig };
