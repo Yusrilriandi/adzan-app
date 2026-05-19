@@ -1,21 +1,15 @@
-const Store = require('electron-store').default;
-const fs = require('fs');
-const path = require('path');
-
-const configDir = path.join(__dirname, '..', 'data', 'config');
-fs.mkdirSync(configDir, { recursive: true });
+const Store = require('electron-store');
 
 const store = new Store({
-  projectName: 'adzan-app',
-  cwd: configDir,
+  name: 'user-preferences', // Biarkan Electron mengatur tempat amannya sendiri
   defaults: {
-    language: 'id', // Default bahasa Indonesia
+    language: 'id',
     city: 'jakarta',
     latitude: -6.2088,
     longitude: 106.8456,
     method: 20,
     adzanMode: 'all', 
-    adzanAll: path.join(__dirname, '..', 'assets', 'adzan.mp3'),
+    adzanAll: '',
     adzanCustom: {
       Fajr: '',
       Dhuhr: '',
@@ -32,6 +26,7 @@ function getConfig() {
 }
 
 function setConfig(newConfig) {
+  // Simpan data kustom baru dengan aman
   store.set({ ...store.store, ...newConfig });
 }
 

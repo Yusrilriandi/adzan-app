@@ -10,32 +10,45 @@ const prayerNames = {
   Isha: 'Isya',
 };
 
-// Tambahkan parameter callback "onPlayAudio"
+let activeJobs = [];
+
 async function schedulePrayerNotifications(onPlayAudio) {
-  const timings = await getPrayerTimes();
-  console.log('Jadwal salat hari ini:');
-  console.table(timings);
+  // Bersihkan jadwal lama sebelum menyusun jadwal hari baru
+  activeJobs.forEach(job => job.cancel());
+  activeJobs = [];
 
-  const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  try {
+    const timings = await getPrayerTimes();
+    const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
-  prayers.forEach((prayer) => {
-    const time = timings[prayer].split(' ')[0];
-    const [hour, minute] = time.split(':').map(Number);
+    prayers.forEach((prayer) => {
+      if (!timings[prayer]) return;
+      const time = timings[prayer].split(' ')[0];
+      const [hour, minute] = time.split(':').map(Number);
 
-    const job = schedule.scheduleJob({ hour, minute }, () => {
-      new Notification({
-        title: '🕌 Waktu Salat',
-        body: `Saatnya salat ${prayerNames[prayer]}`,
-      }).show();
+      // Mendaftarkan jadwal otomatis harian
+      const job = schedule.scheduleJob({ hour, minute }, () => {
+        new Notification({
+          title: '🇲🇨 Waktu Salat Tiba',
+          body: `Saatnya menunaikan ibadah salat ${prayerNames[prayer]}`,
+        }).show();
 
-      console.log(`Waktu ${prayerNames[prayer]} tiba!`);
-      
-      // Kirim sinyal ke UI untuk memutar suara
-      if (onPlayAudio) {
-        onPlayAudio(prayer);
-      }
+        if (onPlayAudio) {
+          onPlayAudio(prayer);
+        }
+      });
+
+      if (job) activeJobs.push(job);
     });
-  });
+
+    // Otomatis merombak & mengambil jadwal baru setiap tengah malam (00:01)
+    schedule.scheduleJob('1 0 * * *', () => {
+      schedulePrayerNotifications(onPlayAudio);
+    });
+
+  } catch (error) {
+    console.error("Gagal memuat cron penjadwalan adzan:", error);
+  }
 }
 
 module.exports = { schedulePrayerNotifications };

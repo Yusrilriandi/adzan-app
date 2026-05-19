@@ -1,12 +1,10 @@
-const { app, BrowserWindow, Notification, Tray, Menu } = require('electron');
+const { app, BrowserWindow, Notification, Tray, Menu, ipcMain } = require('electron');
 const path = require('path');
 const { schedulePrayerNotifications } = require('./services/scheduler');
+const { getConfig, setConfig } = require('./services/config');
+const { getPrayerTimes } = require('./services/prayerTimes');
 
-// === SOLUSI ERROR AUTOPLAY AUDIO ===
-// Mematikan aturan wajib klik sebelum memutar audio
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
-
-// Sembunyikan pesan log/warning internal Chromium di terminal
 app.commandLine.appendSwitch('quiet');
 app.commandLine.appendSwitch('disable-logging');
 
@@ -16,11 +14,12 @@ let mainWindow = null;
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 450,
-    height: 700,
+    height: 780, // Sedikit ditinggikan untuk ruang jam & hijriah
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      backgroundThrottling: false // FIX: Mencegah sistem mematikan alarm/audio saat aplikasi ditutup/minimize
     },
     icon: path.join(__dirname, 'assets', 'icon.png')
   });
@@ -49,18 +48,26 @@ function createTray() {
   tray.on('double-click', () => { mainWindow.show(); });
 }
 
+ipcMain.handle('get-config', () => {
+  return getConfig();
+});
+
+ipcMain.handle('set-config', (event, newConfig) => {
+  setConfig(newConfig);
+  return true;
+});
+
+ipcMain.handle('get-prayer-times', async () => {
+  return await getPrayerTimes();
+});
+
 app.whenReady().then(async () => {
   createWindow();
   try { createTray(); } catch (error) {}
 
-  // Panggil scheduler dan kirim pesan IPC ke Renderer jika jadwal tiba
   await schedulePrayerNotifications((prayerType) => {
     if (mainWindow) {
       mainWindow.webContents.send('trigger-adzan', prayerType);
     }
   });
-});
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {}
 });
