@@ -2,7 +2,7 @@
   "name": "muazzin",
   "version": "1.0.0",
   "description": "Aplikasi desktop pengingat waktu salat untuk Windows.",
-  "author": "yusril dev",
+  "author": "Yusril Riandi Development",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -24,13 +24,13 @@
     "productName": "Mu'azzin",
     "artifactName": "Mu'azzin-Setup-${version}.${ext}",
     "win": {
+            "icon": "assets/icon.ico",
       "target": [
         {
           "target": "nsis",
           "arch": [
             "x64"
-          ],
-            "icon": "assets/icon.ico"
+          ]
         }
       ]
     },

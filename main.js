@@ -68,7 +68,7 @@ function createWindow(startHidden = false) {
       contextIsolation: false,
       backgroundThrottling: false // FIX: Mencegah sistem mematikan alarm/audio saat aplikasi ditutup/minimize
     },
-    icon: getAppIcon()
+    icon: path.join(__dirname, 'assets', 'icon.ico')
   });
 
   mainWindow.loadFile('renderer/index.html');
@@ -89,7 +89,8 @@ function createWindow(startHidden = false) {
 }
 
 function createTray() {
-  tray = new Tray(getAppIcon());
+  const iconPath = path.join(__dirname, 'assets', 'icon.ico');
+  tray = new Tray(iconPath);
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Buka Adzan App', click: showMainWindow },
     { type: 'separator' },
