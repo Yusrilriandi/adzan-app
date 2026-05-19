@@ -11,11 +11,16 @@ const prayerNames = {
 };
 
 let activeJobs = [];
+let refreshJob = null;
 
 async function schedulePrayerNotifications(onPlayAudio) {
   // Bersihkan jadwal lama sebelum menyusun jadwal hari baru
   activeJobs.forEach(job => job.cancel());
   activeJobs = [];
+  if (refreshJob) {
+    refreshJob.cancel();
+    refreshJob = null;
+  }
 
   try {
     const timings = await getPrayerTimes();
@@ -42,7 +47,7 @@ async function schedulePrayerNotifications(onPlayAudio) {
     });
 
     // Otomatis merombak & mengambil jadwal baru setiap tengah malam (00:01)
-    schedule.scheduleJob('1 0 * * *', () => {
+    refreshJob = schedule.scheduleJob('1 0 * * *', () => {
       schedulePrayerNotifications(onPlayAudio);
     });
 

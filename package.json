@@ -1,10 +1,13 @@
 {
-  "name": "adzan-app",
+  "name": "muazzin",
   "version": "1.0.0",
+  "description": "Aplikasi desktop pengingat waktu salat untuk Windows.",
+  "author": "yusril dev",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "build:win": "electron-builder --win nsis"
   },
   "devDependencies": {
     "electron": "^37.0.0",
@@ -17,10 +20,29 @@
     "play-sound": "^1.1.6"
   },
   "build": {
-    "appId": "com.halovie.adzanapp",
-    "productName": "Adzan App",
+    "appId": "com.muazzin.app",
+    "productName": "Mu'azzin",
+    "artifactName": "Mu'azzin-Setup-${version}.${ext}",
     "win": {
-      "target": "nsis"
+      "target": [
+        {
+          "target": "nsis",
+          "icon": "assets/icon.ico",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Mu'azzin",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
     }
   }
 }
