@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, webUtils } = require('electron');
 const path = require('path');
 const url = require('url');
 
@@ -32,6 +32,13 @@ const translations = {
 };
 
 let currentLang = 'id';
+
+function getSelectedFilePath(inputId) {
+  const file = document.getElementById(inputId)?.files[0];
+  if (!file) return '';
+
+  return webUtils?.getPathForFile?.(file) || file.path || '';
+}
 
 function applyLanguage() {
   const texts = translations[currentLang];
@@ -239,15 +246,14 @@ window.saveAudio = async function() {
   const currentConfig = await ipcRenderer.invoke('get-config');
 
   if (adzanMode === 'all') {
-    const fileAll = document.getElementById('audioAll')?.files[0];
-    newConfig.adzanAll = fileAll ? fileAll.path : (currentConfig.adzanAll || '');
+    newConfig.adzanAll = getSelectedFilePath('audioAll') || currentConfig.adzanAll || '';
   } else {
     newConfig.adzanCustom = {
-      Fajr: document.getElementById('audioFajr').files[0]?.path || currentConfig.adzanCustom?.Fajr || '',
-      Dhuhr: document.getElementById('audioDhuhr').files[0]?.path || currentConfig.adzanCustom?.Dhuhr || '',
-      Asr: document.getElementById('audioAsr').files[0]?.path || currentConfig.adzanCustom?.Asr || '',
-      Maghrib: document.getElementById('audioMaghrib').files[0]?.path || currentConfig.adzanCustom?.Maghrib || '',
-      Isha: document.getElementById('audioIsha').files[0]?.path || currentConfig.adzanCustom?.Isha || ''
+      Fajr: getSelectedFilePath('audioFajr') || currentConfig.adzanCustom?.Fajr || '',
+      Dhuhr: getSelectedFilePath('audioDhuhr') || currentConfig.adzanCustom?.Dhuhr || '',
+      Asr: getSelectedFilePath('audioAsr') || currentConfig.adzanCustom?.Asr || '',
+      Maghrib: getSelectedFilePath('audioMaghrib') || currentConfig.adzanCustom?.Maghrib || '',
+      Isha: getSelectedFilePath('audioIsha') || currentConfig.adzanCustom?.Isha || ''
     };
   }
   
