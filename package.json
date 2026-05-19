@@ -27,10 +27,10 @@
       "target": [
         {
           "target": "nsis",
-          "icon": "assets/icon.ico",
           "arch": [
             "x64"
-          ]
+          ],
+            "icon": "assets/icon.ico"
         }
       ]
     },
