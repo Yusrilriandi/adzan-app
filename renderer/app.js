@@ -18,7 +18,9 @@ const translations = {
     alertLocSave: 'Lokasi berhasil disimpan! Jadwal diperbarui.', alertCustomEmpty: 'Harap masukkan nama daerah kustom!',
     alertCoordInvalid: 'Harap masukkan angka koordinat Latitude & Longitude yang valid!',
     alertAudioSave: 'Pengaturan Audio Disimpan!', alertTest: 'Memutar Adzan... Pastikan volume PC menyala.',
-    hijriLabel: 'Tanggal Hijriah'
+    hijriLabel: 'Tanggal Hijriah',
+    saveAudioNote: 'Catatan: Klik "Simpan Audio" untuk memperbarui suara adzan sesuai file baru',
+    saveLocNote: 'Catatan: Klik "Simpan Lokasi" untuk memperbarui jadwal salat sesuai lokasi baru'
   },
   en: {
     locSettings: 'Location Settings', chooseRegion: 'Select Region', customRegionName: 'Custom Region Name',
@@ -31,7 +33,9 @@ const translations = {
     alertLocSave: 'Location saved! Schedule updated.', alertCustomEmpty: 'Please enter a custom region name!',
     alertCoordInvalid: 'Please enter valid Latitude & Longitude coordinates!',
     alertAudioSave: 'Audio Settings Saved!', alertTest: 'Playing Adzan... Make sure PC volume is up.',
-    hijriLabel: 'Hijri Date'
+    hijriLabel: 'Hijri Date',
+    saveAudioNote: 'Note: Click "Save Audio" to update the adzan sound according to the new file',
+    saveLocNote: 'Note: Click "Save Location" to update prayer times according to the new location'
   }
 };
 
