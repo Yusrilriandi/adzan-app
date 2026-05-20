@@ -1,1 +1,1 @@
-# adzan-app
+# Mu'azzin
