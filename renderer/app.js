@@ -1,3 +1,4 @@
+let currentTestAudio = null;
 const { ipcRenderer, webUtils } = require('electron');
 const path = require('path');
 const url = require('url');
@@ -108,9 +109,15 @@ async function playLocalAdzan(prayerType = 'Default') {
   }
 
   try {
+    // FIX OVERLAP: Matikan audio lama sebelum memutar yang baru
+    if (currentTestAudio && !currentTestAudio.paused) {
+      currentTestAudio.pause();
+      currentTestAudio.currentTime = 0;
+    }
+
     const fileUrl = url.pathToFileURL(audioPath).href;
-    const audio = new window.Audio(fileUrl);
-    audio.play().catch((err) => console.error("Gagal putar adzan kustom:", err));
+    currentTestAudio = new window.Audio(fileUrl); // Masukkan ke variabel global
+    currentTestAudio.play().catch((err) => console.error("Gagal putar adzan kustom:", err));
   } catch (err) {
     console.error("Path file tidak valid:", err);
   }
@@ -263,16 +270,29 @@ window.saveAudio = async function() {
 }
 
 window.testAdzan = async function() {
+  // FIX STOP: Jika diklik saat sedang bunyi, matikan saja!
+  if (currentTestAudio && !currentTestAudio.paused) {
+    currentTestAudio.pause();
+    currentTestAudio.currentTime = 0;
+    return; // Berhenti di sini (berfungsi sebagai tombol Stop)
+  }
+
   const config = await ipcRenderer.invoke('get-config');
   if (config.adzanMode === 'custom') {
     playLocalAdzan('Fajr');
   } else {
     playLocalAdzan('Default');
   }
-  alert(translations[currentLang].alertTest);
 }
 
 window.testSpecificAdzan = function(prayerType) {
+  // FIX STOP: Jika diklik saat sedang bunyi, matikan saja!
+  if (currentTestAudio && !currentTestAudio.paused) {
+    currentTestAudio.pause();
+    currentTestAudio.currentTime = 0;
+    return;
+  }
+  
   playLocalAdzan(prayerType);
 }
 
