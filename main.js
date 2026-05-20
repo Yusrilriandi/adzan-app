@@ -105,8 +105,14 @@ ipcMain.handle('get-config', () => {
   return getConfig();
 });
 
-ipcMain.handle('set-config', (event, newConfig) => {
+ipcMain.handle('set-config', async (event, newConfig) => {
   setConfig(newConfig);
+  await schedulePrayerNotifications((prayerType) => {
+    if (mainWindow) {
+      mainWindow.webContents.send('trigger-adzan', prayerType);
+    }
+  });
+
   return true;
 });
 
