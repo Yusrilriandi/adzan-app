@@ -1,4 +1,7 @@
 let currentTestAudio = null;
+let currentActiveButton = null;
+let originalButtonHTML = '';
+let originalButtonClasses = '';
 const { ipcRenderer, webUtils } = require('electron');
 const path = require('path');
 const url = require('url');
@@ -108,18 +111,27 @@ async function playLocalAdzan(prayerType = 'Default') {
     audioPath = path.join(__dirname, '..', 'assets', 'adzan.mp3');
   }
 
-  try {
-    // FIX OVERLAP: Matikan audio lama sebelum memutar yang baru
+try {
     if (currentTestAudio && !currentTestAudio.paused) {
       currentTestAudio.pause();
       currentTestAudio.currentTime = 0;
     }
 
     const fileUrl = url.pathToFileURL(audioPath).href;
-    currentTestAudio = new window.Audio(fileUrl); // Masukkan ke variabel global
-    currentTestAudio.play().catch((err) => console.error("Gagal putar adzan kustom:", err));
+    currentTestAudio = new window.Audio(fileUrl);
+    
+    // FIX VISUAL: Saat audio selesai diputar sampai akhir, reset tombol!
+    currentTestAudio.onended = () => {
+      resetAudioVisual();
+    };
+
+    currentTestAudio.play().catch((err) => {
+      console.error("Gagal putar adzan kustom:", err);
+      resetAudioVisual(); // Reset juga jika gagal mutar
+    });
   } catch (err) {
     console.error("Path file tidak valid:", err);
+    resetAudioVisual();
   }
 }
 
@@ -269,12 +281,36 @@ window.saveAudio = async function() {
   await init(); 
 }
 
+// Fungsi tambahan untuk mereset tampilan tombol test jika audio dihentikan secara manual
+function resetAudioVisual() {
+  if (currentActiveButton) {
+    // Kembalikan ke warna dan teks semula
+    currentActiveButton.innerHTML = originalButtonHTML;
+    currentActiveButton.className = originalButtonClasses;
+    currentActiveButton = null;
+  }
+}
+
 window.testAdzan = async function() {
-  // FIX STOP: Jika diklik saat sedang bunyi, matikan saja!
+  // Tangkap tombol yang baru saja diklik
+  const targetBtn = document.activeElement.closest('button') || document.activeElement;
+
   if (currentTestAudio && !currentTestAudio.paused) {
     currentTestAudio.pause();
     currentTestAudio.currentTime = 0;
-    return; // Berhenti di sini (berfungsi sebagai tombol Stop)
+    resetAudioVisual(); // Kembalikan ke wujud asli saat distop
+    return; 
+  }
+
+  // Animasi Tombol Stop yang lebih "Kalem" (Kecil, Transparan, Elegan)
+  if (targetBtn && targetBtn.tagName === 'BUTTON') {
+    currentActiveButton = targetBtn;
+    originalButtonHTML = targetBtn.innerHTML;
+    originalButtonClasses = targetBtn.className;
+    
+    // UBAH KELAS TAILWIND DI SINI: lebih kecil (w-fit), warna transparan, bentuk oval
+    targetBtn.className = "flex items-center justify-center gap-2 px-4 py-1.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 rounded-full transition-all text-sm w-fit mx-auto mt-2";
+    targetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /></svg> Stop`;
   }
 
   const config = await ipcRenderer.invoke('get-config');
@@ -286,13 +322,25 @@ window.testAdzan = async function() {
 }
 
 window.testSpecificAdzan = function(prayerType) {
-  // FIX STOP: Jika diklik saat sedang bunyi, matikan saja!
+  const targetBtn = document.activeElement.closest('button') || document.activeElement;
+
   if (currentTestAudio && !currentTestAudio.paused) {
     currentTestAudio.pause();
     currentTestAudio.currentTime = 0;
+    resetAudioVisual();
     return;
   }
   
+  // Animasi Tombol Stop Custom yang lebih "Kalem"
+  if (targetBtn && targetBtn.tagName === 'BUTTON') {
+    currentActiveButton = targetBtn;
+    originalButtonHTML = targetBtn.innerHTML;
+    originalButtonClasses = targetBtn.className;
+    
+    targetBtn.className = "flex items-center justify-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 rounded-full transition-all text-xs w-fit mt-2";
+    targetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Stop`;
+  }
+
   playLocalAdzan(prayerType);
 }
 

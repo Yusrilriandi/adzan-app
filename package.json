@@ -1,7 +1,7 @@
 {
   "name": "muazzin",
-  "version": "1.0.0",
-  "description": "Aplikasi desktop pengingat waktu salat untuk Windows.",
+  "version": "2.0.0",
+  "description": "Aplikasi Desktop Pengingat Waktu Salat untuk Windows.",
   "author": "Yusril Riandi Development",
   "main": "main.js",
   "scripts": {
