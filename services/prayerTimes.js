@@ -8,7 +8,7 @@ async function getPrayerTimes() {
   const month = date.getMonth() + 1; // Bulan di JS dimulai dari 0
 
   // Menggunakan latitude & longitude yang tersimpan di config
-  const url = `http://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${config.latitude}&longitude=${config.longitude}&method=${config.method}`;
+ const url = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${config.latitude}&longitude=${config.longitude}&method=20&tune=0,2,-2,2,2,2,0,2,0`;
 
   try {
     const response = await axios.get(url);

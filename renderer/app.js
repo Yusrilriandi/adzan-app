@@ -1,3 +1,7 @@
+let currentTestAudio = null;
+let currentActiveButton = null;
+let originalButtonHTML = '';
+let originalButtonClasses = '';
 const { ipcRenderer, webUtils } = require('electron');
 const path = require('path');
 const url = require('url');
@@ -14,7 +18,9 @@ const translations = {
     alertLocSave: 'Lokasi berhasil disimpan! Jadwal diperbarui.', alertCustomEmpty: 'Harap masukkan nama daerah kustom!',
     alertCoordInvalid: 'Harap masukkan angka koordinat Latitude & Longitude yang valid!',
     alertAudioSave: 'Pengaturan Audio Disimpan!', alertTest: 'Memutar Adzan... Pastikan volume PC menyala.',
-    hijriLabel: 'Tanggal Hijriah'
+    hijriLabel: 'Tanggal Hijriah',
+    saveAudioNote: 'Catatan: Klik "Simpan Audio" untuk memperbarui suara adzan sesuai file baru',
+    saveLocNote: 'Catatan: Klik "Simpan Lokasi" untuk memperbarui jadwal salat sesuai lokasi baru'
   },
   en: {
     locSettings: 'Location Settings', chooseRegion: 'Select Region', customRegionName: 'Custom Region Name',
@@ -27,7 +33,9 @@ const translations = {
     alertLocSave: 'Location saved! Schedule updated.', alertCustomEmpty: 'Please enter a custom region name!',
     alertCoordInvalid: 'Please enter valid Latitude & Longitude coordinates!',
     alertAudioSave: 'Audio Settings Saved!', alertTest: 'Playing Adzan... Make sure PC volume is up.',
-    hijriLabel: 'Hijri Date'
+    hijriLabel: 'Hijri Date',
+    saveAudioNote: 'Note: Click "Save Audio" to update the adzan sound according to the new file',
+    saveLocNote: 'Note: Click "Save Location" to update prayer times according to the new location'
   }
 };
 
@@ -107,12 +115,27 @@ async function playLocalAdzan(prayerType = 'Default') {
     audioPath = path.join(__dirname, '..', 'assets', 'adzan.mp3');
   }
 
-  try {
+try {
+    if (currentTestAudio && !currentTestAudio.paused) {
+      currentTestAudio.pause();
+      currentTestAudio.currentTime = 0;
+    }
+
     const fileUrl = url.pathToFileURL(audioPath).href;
-    const audio = new window.Audio(fileUrl);
-    audio.play().catch((err) => console.error("Gagal putar adzan kustom:", err));
+    currentTestAudio = new window.Audio(fileUrl);
+    
+    // FIX VISUAL: Saat audio selesai diputar sampai akhir, reset tombol!
+    currentTestAudio.onended = () => {
+      resetAudioVisual();
+    };
+
+    currentTestAudio.play().catch((err) => {
+      console.error("Gagal putar adzan kustom:", err);
+      resetAudioVisual(); // Reset juga jika gagal mutar
+    });
   } catch (err) {
     console.error("Path file tidak valid:", err);
+    resetAudioVisual();
   }
 }
 
@@ -262,17 +285,66 @@ window.saveAudio = async function() {
   await init(); 
 }
 
+// Fungsi tambahan untuk mereset tampilan tombol test jika audio dihentikan secara manual
+function resetAudioVisual() {
+  if (currentActiveButton) {
+    // Kembalikan ke warna dan teks semula
+    currentActiveButton.innerHTML = originalButtonHTML;
+    currentActiveButton.className = originalButtonClasses;
+    currentActiveButton = null;
+  }
+}
+
 window.testAdzan = async function() {
+  // Tangkap tombol yang baru saja diklik
+  const targetBtn = document.activeElement.closest('button') || document.activeElement;
+
+  if (currentTestAudio && !currentTestAudio.paused) {
+    currentTestAudio.pause();
+    currentTestAudio.currentTime = 0;
+    resetAudioVisual(); // Kembalikan ke wujud asli saat distop
+    return; 
+  }
+
+  // Animasi Tombol Stop yang lebih "Kalem" (Kecil, Transparan, Elegan)
+  if (targetBtn && targetBtn.tagName === 'BUTTON') {
+    currentActiveButton = targetBtn;
+    originalButtonHTML = targetBtn.innerHTML;
+    originalButtonClasses = targetBtn.className;
+    
+    // UBAH KELAS TAILWIND DI SINI: lebih kecil (w-fit), warna transparan, bentuk oval
+    targetBtn.className = "flex items-center justify-center gap-2 px-4 py-1.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 rounded-full transition-all text-sm w-fit mx-auto mt-2";
+    targetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /></svg> Stop`;
+  }
+
   const config = await ipcRenderer.invoke('get-config');
   if (config.adzanMode === 'custom') {
     playLocalAdzan('Fajr');
   } else {
     playLocalAdzan('Default');
   }
-  alert(translations[currentLang].alertTest);
 }
 
 window.testSpecificAdzan = function(prayerType) {
+  const targetBtn = document.activeElement.closest('button') || document.activeElement;
+
+  if (currentTestAudio && !currentTestAudio.paused) {
+    currentTestAudio.pause();
+    currentTestAudio.currentTime = 0;
+    resetAudioVisual();
+    return;
+  }
+  
+  // Animasi Tombol Stop Custom yang lebih "Kalem"
+  if (targetBtn && targetBtn.tagName === 'BUTTON') {
+    currentActiveButton = targetBtn;
+    originalButtonHTML = targetBtn.innerHTML;
+    originalButtonClasses = targetBtn.className;
+    
+    targetBtn.className = "flex items-center justify-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 rounded-full transition-all text-xs w-fit mt-2";
+    targetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Stop`;
+  }
+
   playLocalAdzan(prayerType);
 }
 
@@ -281,3 +353,29 @@ ipcRenderer.on('trigger-adzan', (event, prayerType) => {
 });
 
 document.addEventListener('DOMContentLoaded', init);
+
+const updateBanner = document.getElementById('update-banner');
+const btnInstallUpdate = document.getElementById('btn-install-update');
+const btnIgnoreUpdate = document.getElementById('btn-ignore-update');
+
+ipcRenderer.on('update_ready', () => {
+  updateBanner.classList.remove('hidden');
+  updateBanner.classList.add('flex', 'animate-slide-down');
+});
+
+btnInstallUpdate.addEventListener('click', () => {
+  btnInstallUpdate.innerText = "Memasang...";
+  ipcRenderer.send('restart_app');
+});
+
+btnIgnoreUpdate.addEventListener('click', () => {  
+  updateBanner.classList.add('hidden');
+  updateBanner.classList.remove('flex');
+});
+
+const appVersionEl = document.getElementById('app-version');
+ipcRenderer.on('app_version', (event, version) => {
+  if (appVersionEl) {
+    appVersionEl.innerText = `v${version}`;
+  }
+});

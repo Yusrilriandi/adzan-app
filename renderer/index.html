@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8" />
   <title>Mu'azzin</title>
@@ -17,36 +18,79 @@
     }
   </script>
   <style>
-    body { background: radial-gradient(circle at top, #0b1220, #050814); min-height: 100vh; }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+    body {
+      background: radial-gradient(circle at top, #0b1220, #050814);
+      min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #374151;
+      border-radius: 4px;
+    }
+
+    @keyframes slideDownFade {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -20px) scale(0.95);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+      }
+    }
+
+    .animate-slide-down {
+      animation: slideDownFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
   </style>
 </head>
 
 <body class="text-gray-200 p-6">
-  
+
   <div class="flex items-center justify-between mb-4">
     <div class="flex items-center gap-3">
       <div class="text-green-400">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9"><path d="M12 2v3"/><path d="M12 5a6 6 0 0 0-6 6v2h12v-2a6 6 0 0 0-6-6z"/><path d="M3 21h18"/><path d="M5 21v-6h14v6"/><path d="M9 21v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-9 h-9">
+          <path d="M12 2v3" />
+          <path d="M12 5a6 6 0 0 0-6 6v2h12v-2a6 6 0 0 0-6-6z" />
+          <path d="M3 21h18" />
+          <path d="M5 21v-6h14v6" />
+          <path d="M9 21v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
+        </svg>
       </div>
       <h1 class="text-2xl font-semibold text-white">Mu'azzin</h1>
       <span class="text-xs px-3 py-1 bg-green-500 text-black font-bold rounded-full">LIVE</span>
     </div>
-    
-    <button onclick="toggleLanguage()" class="flex items-center gap-2 px-3 py-1.5 bg-gray-800 border border-gray-600 rounded-lg text-sm font-semibold text-white hover:bg-gray-700 hover:border-green-500 transition">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-300"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+
+    <button onclick="toggleLanguage()"
+      class="flex items-center gap-2 px-3 py-1.5 bg-gray-800 border border-gray-600 rounded-lg text-sm font-semibold text-white hover:bg-gray-700 hover:border-green-500 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-300">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      </svg>
       <span id="langText">ID</span>
     </button>
   </div>
 
-  <div class="bg-cardBg backdrop-blur-md border border-gray-800 p-4 rounded-2xl shadow-xl mb-6 flex justify-between items-center gap-4">
+  <div
+    class="bg-cardBg backdrop-blur-md border border-gray-800 p-4 rounded-2xl shadow-xl mb-6 flex justify-between items-center gap-4">
     <div>
       <p id="liveClock" class="text-3xl font-bold text-green-400 tracking-widest font-mono">00:00:00</p>
       <p id="masehiDate" class="text-xs text-gray-400 mt-0.5">Memuat tanggal...</p>
     </div>
     <div class="text-right">
-      <span class="text-[10px] px-2 py-0.5 bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 font-semibold rounded-full uppercase tracking-wider" data-i18n="hijriLabel">Kalender Hijriah</span>
+      <span
+        class="text-[10px] px-2 py-0.5 bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 font-semibold rounded-full uppercase tracking-wider"
+        data-i18n="hijriLabel">Kalender Hijriah</span>
       <p id="hijriDate" class="text-sm font-semibold text-white mt-1.5">Memuat Hijriah...</p>
     </div>
   </div>
@@ -55,44 +99,64 @@
     <div class="flex flex-col gap-6">
       <div class="bg-cardBg backdrop-blur-md border border-gray-800 p-5 rounded-2xl shadow-xl">
         <h2 class="text-sm text-gray-400 font-semibold uppercase mb-4 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
           <span data-i18n="locSettings">Pengaturan Lokasi</span>
         </h2>
         <div class="space-y-3">
           <div>
             <label class="block text-xs text-gray-400 mb-1" data-i18n="chooseRegion">Pilih Daerah</label>
-            <select id="citySelect" class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white outline-none focus:border-green-500 text-sm" onchange="toggleLocationInputs()"></select>
+            <select id="citySelect"
+              class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white outline-none focus:border-green-500 text-sm"
+              onchange="toggleLocationInputs()"></select>
           </div>
 
           <div id="customLocationDiv" class="hidden flex-col gap-3">
             <div>
               <label class="block text-xs text-gray-400 mb-1" data-i18n="customRegionName">Nama Daerah Kustom</label>
-              <input id="customCityName" type="text" data-i18n="customRegionPlaceholder" placeholder="Masukkan nama daerah baru..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white text-sm outline-none focus:border-green-500" />
+              <input id="customCityName" type="text" data-i18n="customRegionPlaceholder"
+                placeholder="Masukkan nama daerah baru..."
+                class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white text-sm outline-none focus:border-green-500" />
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs text-gray-400 mb-1">Latitude</label>
-                <input id="lat" type="text" class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white text-sm outline-none focus:border-green-500" />
+                <input id="lat" type="text"
+                  class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white text-sm outline-none focus:border-green-500" />
               </div>
               <div>
                 <label class="block text-xs text-gray-400 mb-1">Longitude</label>
-                <input id="lon" type="text" class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white text-sm outline-none focus:border-green-500" />
+                <input id="lon" type="text"
+                  class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white text-sm outline-none focus:border-green-500" />
               </div>
             </div>
           </div>
-          <button onclick="saveLocation()" data-i18n="saveLocBtn" class="w-full mt-2 py-2.5 rounded-lg bg-gradient-to-r from-green-500 to-green-600 hover:opacity-90 font-semibold text-white transition text-sm">Simpan Lokasi</button>
+          <button onclick="saveLocation()" data-i18n="saveLocBtn"
+            class="w-full mt-2 py-2.5 rounded-lg bg-gradient-to-r from-green-500 to-green-600 hover:opacity-90 font-semibold text-white transition text-sm">Simpan
+            Lokasi</button>
         </div>
+        <p data-i18n="saveLocNote" class="text-[10px] text-gray-400 italic mt-2"> Note: Klik "Simpan Lokasi" untuk
+          memperbarui jadwal salat sesuai lokasi baru</p>
       </div>
 
       <div class="bg-cardBg backdrop-blur-md border border-gray-800 p-5 rounded-2xl shadow-xl">
         <h2 class="text-sm text-gray-400 font-semibold uppercase mb-4 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </svg>
           <span data-i18n="audioSettings">Audio Adzan</span>
         </h2>
         <div class="space-y-3">
           <div>
             <label class="block text-xs text-gray-400 mb-1" data-i18n="audioMode">Mode Audio</label>
-            <select id="adzanMode" class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white outline-none focus:border-green-500 text-sm" onchange="toggleAudioInputs()">
+            <select id="adzanMode"
+              class="w-full p-2.5 rounded-lg bg-slate-900 border border-gray-700 text-white outline-none focus:border-green-500 text-sm"
+              onchange="toggleAudioInputs()">
               <option value="all" data-i18n="modeAll">Sama untuk semua waktu (Default)</option>
               <option value="custom" data-i18n="modeCustom">Berbeda tiap waktu</option>
             </select>
@@ -100,79 +164,168 @@
 
           <div id="allAudioDiv" class="flex flex-col gap-1 mt-2">
             <label class="block text-xs text-green-400" data-i18n="allAudioLabel">Pilih file .mp3 utama:</label>
-            <input type="file" id="audioAll" accept="audio/mp3" class="w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer"/>
+            <input type="file" id="audioAll" accept="audio/mp3"
+              class="w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer" />
             <p id="pathAll" class="text-[10px] text-gray-400 italic truncate max-w-xs"></p>
           </div>
 
           <div id="customAudioDiv" class="hidden flex-col gap-3 mt-3">
-            <label class="block text-xs text-green-400 mb-1" data-i18n="customAudioLabel">Pilih file .mp3 untuk masing-masing waktu:</label>
-            
+            <label class="block text-xs text-green-400 mb-1" data-i18n="customAudioLabel">Pilih file .mp3 untuk
+              masing-masing waktu:</label>
+
             <div class="flex flex-col gap-0.5 text-sm">
               <div class="flex items-center gap-2">
-                <span class="w-16" data-i18n="fajr">Subuh</span> 
-                <input type="file" id="audioFajr" accept="audio/mp3" class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer"/>
-                <button onclick="testSpecificAdzan('Fajr')" class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+                <span class="w-16" data-i18n="fajr">Subuh</span>
+                <input type="file" id="audioFajr" accept="audio/mp3"
+                  class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer" />
+                <button onclick="testSpecificAdzan('Fajr')"
+                  class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition"><svg
+                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" class="w-4 h-4">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg></button>
               </div>
               <p id="pathFajr" class="text-[10px] text-gray-400 italic pl-18 truncate max-w-xs"></p>
             </div>
 
             <div class="flex flex-col gap-0.5 text-sm">
               <div class="flex items-center gap-2">
-                <span class="w-16" data-i18n="dhuhr">Dzuhur</span> 
-                <input type="file" id="audioDhuhr" accept="audio/mp3" class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer"/>
-                <button onclick="testSpecificAdzan('Dhuhr')" class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+                <span class="w-16" data-i18n="dhuhr">Dzuhur</span>
+                <input type="file" id="audioDhuhr" accept="audio/mp3"
+                  class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer" />
+                <button onclick="testSpecificAdzan('Dhuhr')"
+                  class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition"><svg
+                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" class="w-4 h-4">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg></button>
               </div>
               <p id="pathDhuhr" class="text-[10px] text-gray-400 italic pl-18 truncate max-w-xs"></p>
             </div>
 
             <div class="flex flex-col gap-0.5 text-sm">
               <div class="flex items-center gap-2">
-                <span class="w-16" data-i18n="asr">Ashar</span> 
-                <input type="file" id="audioAsr" accept="audio/mp3" class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer"/>
-                <button onclick="testSpecificAdzan('Asr')" class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+                <span class="w-16" data-i18n="asr">Ashar</span>
+                <input type="file" id="audioAsr" accept="audio/mp3"
+                  class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer" />
+                <button onclick="testSpecificAdzan('Asr')"
+                  class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition"><svg
+                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" class="w-4 h-4">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg></button>
               </div>
               <p id="pathAsr" class="text-[10px] text-gray-400 italic pl-18 truncate max-w-xs"></p>
             </div>
 
             <div class="flex flex-col gap-0.5 text-sm">
               <div class="flex items-center gap-2">
-                <span class="w-16" data-i18n="maghrib">Maghrib</span> 
-                <input type="file" id="audioMaghrib" accept="audio/mp3" class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer"/>
-                <button onclick="testSpecificAdzan('Maghrib')" class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+                <span class="w-16" data-i18n="maghrib">Maghrib</span>
+                <input type="file" id="audioMaghrib" accept="audio/mp3"
+                  class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer" />
+                <button onclick="testSpecificAdzan('Maghrib')"
+                  class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition"><svg
+                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" class="w-4 h-4">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg></button>
               </div>
               <p id="pathMaghrib" class="text-[10px] text-gray-400 italic pl-18 truncate max-w-xs"></p>
             </div>
 
             <div class="flex flex-col gap-0.5 text-sm">
               <div class="flex items-center gap-2">
-                <span class="w-16" data-i18n="isha">Isya</span> 
-                <input type="file" id="audioIsha" accept="audio/mp3" class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer"/>
-                <button onclick="testSpecificAdzan('Isha')" class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+                <span class="w-16" data-i18n="isha">Isya</span>
+                <input type="file" id="audioIsha" accept="audio/mp3"
+                  class="flex-1 w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-gray-800 file:text-white hover:file:bg-gray-700 cursor-pointer" />
+                <button onclick="testSpecificAdzan('Isha')"
+                  class="p-1.5 bg-gray-800 rounded hover:bg-green-600 hover:text-white transition"><svg
+                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" class="w-4 h-4">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg></button>
               </div>
               <p id="pathIsha" class="text-[10px] text-gray-400 italic pl-18 truncate max-w-xs"></p>
             </div>
           </div>
 
           <div class="flex gap-2 mt-2">
-            <button onclick="saveAudio()" data-i18n="saveAudioBtn" class="flex-1 py-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-600 font-semibold text-white transition text-sm">Simpan Audio</button>
-            <button onclick="testAdzan()" class="px-5 py-2.5 rounded-lg border border-green-500 text-green-400 hover:bg-green-500 hover:text-white font-semibold transition text-sm flex items-center justify-center gap-2">
+            <button onclick="saveAudio()" data-i18n="saveAudioBtn"
+              class="flex-1 py-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-600 font-semibold text-white transition text-sm">Simpan
+              Audio</button>
+            <button onclick="testAdzan()"
+              class="px-5 py-2.5 rounded-lg border border-green-500 text-green-400 hover:bg-green-500 hover:text-white font-semibold transition text-sm flex items-center justify-center gap-2">
               <span data-i18n="testBtn">Test Utama</span>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+              </svg>
             </button>
           </div>
+          <p data-i18n="saveAudioNote" class="text-[10px] text-gray-400 italic mt-2">Note: Klik "Simpan Audio" untuk
+            memperbarui suara adzan sesuai file baru</p>
         </div>
       </div>
     </div>
 
     <div class="bg-cardBg backdrop-blur-md border border-gray-800 p-5 rounded-2xl shadow-xl h-fit">
       <h2 class="text-sm text-gray-400 font-semibold uppercase mb-4 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400"><path d="M12 2v3"/><path d="M12 5a6 6 0 0 0-6 6v2h12v-2a6 6 0 0 0-6-6z"/><path d="M3 21h18"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400">
+          <path d="M12 2v3" />
+          <path d="M12 5a6 6 0 0 0-6 6v2h12v-2a6 6 0 0 0-6-6z" />
+          <path d="M3 21h18" />
+        </svg>
         <span data-i18n="scheduleTitle">Jadwal Salat Hari Ini</span>
       </h2>
       <div id="schedule" class="flex flex-col gap-3"></div>
     </div>
   </div>
 
+  <div id="update-banner"
+    class="hidden fixed top-6 left-1/2 transform -translate-x-1/2 bg-[#0a0f1e]/80 backdrop-blur-xl border border-emerald-500/30 shadow-[0_15px_40px_-10px_rgba(16,185,129,0.3)] px-4 py-3.5 rounded-2xl z-50 flex-row items-center gap-4 min-w-[320px] transition-all duration-300">
+
+    <div class="flex-shrink-0 bg-emerald-500/10 p-2.5 rounded-full border border-emerald-500/20 relative">
+      <span class="absolute top-0 right-0 flex h-2.5 w-2.5 transform translate-x-1/4 -translate-y-1/4">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+      </span>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+    </div>
+
+    <div class="flex flex-col text-left flex-grow">
+      <h4 class="font-bold text-gray-100 text-[13px] tracking-wide mb-0.5">Pembaruan Siap!</h4>
+      <p class="text-[11px] text-gray-400 font-medium">Versi terbaru telah diunduh.</p>
+    </div>
+
+    <div class="flex gap-2">
+      <button id="btn-ignore-update"
+        class="px-3 py-1.5 text-[11px] font-medium text-gray-500 hover:text-gray-200 hover:bg-white/5 rounded-lg transition-colors duration-200">
+        Nanti
+      </button>
+      <button id="btn-install-update"
+        class="px-4 py-1.5 text-[11px] bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] transform hover:-translate-y-0.5">
+        Muat Ulang
+      </button>
+    </div>
+  </div>
+
+  <footer class="mt-auto pt-6 text-xs text-gray-600 text-center w-full pb-4">
+    <p>&copy; 2026 Mu'azzin Project. Dikembangkan dengan sepenuh hati.</p>
+    <p id="app-version" class="text-[11px] text-gray-500 mt-1 font-medium tracking-wider">v2.0.0</p>
+  </footer>
+
   <script src="app.js"></script>
 </body>
+
 </html>
