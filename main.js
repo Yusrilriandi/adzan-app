@@ -1,15 +1,27 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, dialog } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { schedulePrayerNotifications } = require('./services/scheduler');
 const { getConfig, setConfig } = require('./services/config');
 const { getPrayerTimes } = require('./services/prayerTimes');
+const { autoUpdater } = require('electron-updater');
 
 const APP_ID = 'com.halovie.adzanapp';
 
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 app.commandLine.appendSwitch('quiet');
 app.commandLine.appendSwitch('disable-logging');
+
+
+autoUpdater.on('update-downloaded', () => {
+  if (mainWindow) {
+    mainWindow.webContents.send('update_ready');
+  }
+});
+
+ipcMain.on('restart_app', () => {
+  autoUpdater.quitAndInstall();
+});
 
 if (process.platform === 'win32') {
   app.setAppUserModelId(APP_ID);
@@ -73,6 +85,10 @@ function createWindow(startHidden = false) {
 
   mainWindow.loadFile('renderer/index.html');
 
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.send('app_version', app.getVersion());
+  });
+
   if (startHidden) {
     mainWindow.once('ready-to-show', () => {
       mainWindow.hide();
@@ -127,14 +143,17 @@ if (gotTheLock) {
 
   app.whenReady().then(async () => {
     enableAutoLaunch();
-    createWindow(shouldStartHidden());
-    try { createTray(); } catch (error) {}
+    createWindow(shouldStartHidden()); // <-- Cukup satu createWindow di sini
+    try { createTray(); } catch (error) { }
 
     await schedulePrayerNotifications((prayerType) => {
       if (mainWindow) {
         mainWindow.webContents.send('trigger-adzan', prayerType);
       }
     });
+
+    autoUpdater.autoDownload = true;
+    autoUpdater.checkForUpdatesAndNotify();
   });
 
   app.on('activate', () => {

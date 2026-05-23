@@ -353,3 +353,29 @@ ipcRenderer.on('trigger-adzan', (event, prayerType) => {
 });
 
 document.addEventListener('DOMContentLoaded', init);
+
+const updateBanner = document.getElementById('update-banner');
+const btnInstallUpdate = document.getElementById('btn-install-update');
+const btnIgnoreUpdate = document.getElementById('btn-ignore-update');
+
+ipcRenderer.on('update_ready', () => {
+  updateBanner.classList.remove('hidden');
+  updateBanner.classList.add('flex', 'animate-slide-down');
+});
+
+btnInstallUpdate.addEventListener('click', () => {
+  btnInstallUpdate.innerText = "Memasang...";
+  ipcRenderer.send('restart_app');
+});
+
+btnIgnoreUpdate.addEventListener('click', () => {  
+  updateBanner.classList.add('hidden');
+  updateBanner.classList.remove('flex');
+});
+
+const appVersionEl = document.getElementById('app-version');
+ipcRenderer.on('app_version', (event, version) => {
+  if (appVersionEl) {
+    appVersionEl.innerText = `v${version}`;
+  }
+});
