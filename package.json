@@ -5,13 +5,17 @@
   "author": "Yusril Riandi Development",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "build": "electron-builder",
-    "build:win": "electron-builder --win nsis"
+    "start": "npm run tailwind:build && electron .",
+    "tailwind:build": "tailwindcss -i ./renderer/input.css -o ./renderer/tailwind.css",
+    "tailwind:watch": "tailwindcss -i ./renderer/input.css -o ./renderer/tailwind.css --watch",
+    "build": "npm run tailwind:build && electron-builder",
+    "build:win": "npm run tailwind:build && electron-builder --win nsis"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
     "electron": "^37.0.0",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "tailwindcss": "^4.3.0"
   },
   "dependencies": {
     "axios": "^1.9.0",
@@ -20,7 +24,7 @@
     "node-schedule": "^2.1.1",
     "play-sound": "^1.1.6"
   },
- "build": {
+  "build": {
     "appId": "com.muazzin.app",
     "publish": [
       {

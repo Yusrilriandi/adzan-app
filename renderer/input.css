@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@source "./index.html";
+@source "./app.js";
+
+@theme {
+  --font-sans: "Poppins", sans-serif;
+  --color-darkBg: #050814;
+  --color-cardBg: rgba(17, 24, 39, 0.7);
+}
