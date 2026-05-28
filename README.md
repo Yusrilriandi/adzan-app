@@ -1,4 +1,4 @@
-# Adzan App
+# Mu'azzin
 
 Aplikasi desktop pengingat waktu salat untuk Windows.
 

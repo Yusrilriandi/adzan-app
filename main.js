@@ -145,6 +145,26 @@ ipcMain.handle('get-config', () => {
   return getConfig();
 });
 
+ipcMain.handle('save-safe-audio', (event, sourcePath, prefix) => {
+  try {
+    if (!sourcePath || !fs.existsSync(sourcePath)) {
+      throw new Error('FILE_NOT_FOUND');
+    }
+
+    const safeAudioDir = path.join(app.getPath('userData'), 'custom_audio');
+    fs.mkdirSync(safeAudioDir, { recursive: true });
+
+    const extension = path.extname(sourcePath);
+    const destinationPath = path.join(safeAudioDir, `adzan_${prefix}${extension}`);
+    fs.copyFileSync(sourcePath, destinationPath);
+
+    return destinationPath;
+  } catch (error) {
+    console.error('Gagal menyimpan audio ke direktori aman:', error);
+    throw error;
+  }
+});
+
 ipcMain.handle('set-config', async (event, newConfig) => {
   setConfig(newConfig);
   await refreshPrayerSchedule({ clearOnEmpty: shouldClearScheduleOnEmpty(newConfig) });

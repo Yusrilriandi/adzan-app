@@ -288,19 +288,46 @@ window.saveAudio = async function () {
   let newConfig = { adzanMode: adzanMode };
   const currentConfig = await ipcRenderer.invoke('get-config');
 
+  const processAudioFile = async (inputId, prefix, currentPath) => {
+    const selectedPath = getSelectedFilePath(inputId);
+    if (!selectedPath) return '';
+
+    try {
+      return await ipcRenderer.invoke('save-safe-audio', selectedPath, prefix);
+    } catch (error) {
+      console.warn('Gagal memproses file audio:', error);
+      return currentPath;
+    }
+  };
+
   if (adzanMode === 'all') {
-    newConfig.adzanAll = getSelectedFilePath('audioAll') || currentConfig.adzanAll || '';
+    const savedAdzanAll = await processAudioFile('audioAll', 'all', currentConfig.adzanAll || '');
+    newConfig.adzanAll = savedAdzanAll || currentConfig.adzanAll || '';
   } else {
+    const savedAdzanCustom = {
+      Fajr: await processAudioFile('audioFajr', 'Fajr', currentConfig.adzanCustom?.Fajr || ''),
+      Dhuhr: await processAudioFile('audioDhuhr', 'Dhuhr', currentConfig.adzanCustom?.Dhuhr || ''),
+      Asr: await processAudioFile('audioAsr', 'Asr', currentConfig.adzanCustom?.Asr || ''),
+      Maghrib: await processAudioFile('audioMaghrib', 'Maghrib', currentConfig.adzanCustom?.Maghrib || ''),
+      Isha: await processAudioFile('audioIsha', 'Isha', currentConfig.adzanCustom?.Isha || '')
+    };
+
     newConfig.adzanCustom = {
-      Fajr: getSelectedFilePath('audioFajr') || currentConfig.adzanCustom?.Fajr || '',
-      Dhuhr: getSelectedFilePath('audioDhuhr') || currentConfig.adzanCustom?.Dhuhr || '',
-      Asr: getSelectedFilePath('audioAsr') || currentConfig.adzanCustom?.Asr || '',
-      Maghrib: getSelectedFilePath('audioMaghrib') || currentConfig.adzanCustom?.Maghrib || '',
-      Isha: getSelectedFilePath('audioIsha') || currentConfig.adzanCustom?.Isha || ''
+      Fajr: savedAdzanCustom.Fajr || currentConfig.adzanCustom?.Fajr || '',
+      Dhuhr: savedAdzanCustom.Dhuhr || currentConfig.adzanCustom?.Dhuhr || '',
+      Asr: savedAdzanCustom.Asr || currentConfig.adzanCustom?.Asr || '',
+      Maghrib: savedAdzanCustom.Maghrib || currentConfig.adzanCustom?.Maghrib || '',
+      Isha: savedAdzanCustom.Isha || currentConfig.adzanCustom?.Isha || ''
     };
   }
 
   await ipcRenderer.invoke('set-config', newConfig);
+  document.getElementById('audioAll').value = '';
+  document.getElementById('audioFajr').value = '';
+  document.getElementById('audioDhuhr').value = '';
+  document.getElementById('audioAsr').value = '';
+  document.getElementById('audioMaghrib').value = '';
+  document.getElementById('audioIsha').value = '';
   alert(translations[currentLang].alertAudioSave);
   await init();
 }
