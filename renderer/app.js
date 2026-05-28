@@ -25,7 +25,7 @@ const translations = {
     saveAudioNote: 'Catatan: Klik "Simpan Audio" untuk memperbarui suara adzan sesuai file baru',
     saveLocNote: 'Catatan: Klik "Simpan Lokasi" untuk memperbarui jadwal salat sesuai lokasi baru',
     footerText: 'Hak Cipta & Copy; 2026 Mu\'azzin Project. Dikembangkan dengan sepenuh hati.',
-    scheduleNote: 'Waktu disesuaikan dengan peraturan Kementerian Agama (Kemenag), Ikhtiyat +2 Menit.'
+    scheduleNote: 'Waktu telah disesuaikan dengan peraturan Kementerian Agama (Kemenag), Ikhtiyat +2 Menit.'
   },
   en: {
     locSettings: 'Location Settings', chooseRegion: 'Select Region', customRegionName: 'Custom Region Name',
@@ -43,7 +43,7 @@ const translations = {
     saveAudioNote: 'Note: Click "Save Audio" to update the adzan sound according to the new file',
     saveLocNote: 'Note: Click "Save Location" to update prayer times according to the new location',
     footerText: 'Copyright & Copy; 2026 Mu\'azzin Project. Developed with heartfelt dedication.',
-    scheduleNote: 'Times adjusted to the Ministry of Religious Affairs (MRA), Ikhtiyat +2 Minutes.'
+    scheduleNote: 'Times have been adjusted to the Ministry of Religious Affairs (MRA), Ikhtiyat +2 Minutes.'
   }
 };
 
