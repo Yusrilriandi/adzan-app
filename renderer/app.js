@@ -2,6 +2,8 @@ let currentTestAudio = null;
 let currentActiveButton = null;
 let originalButtonHTML = '';
 let originalButtonClasses = '';
+let liveClockInterval = null;
+let prayerRefreshInProgress = false;
 const { ipcRenderer, webUtils } = require('electron');
 const path = require('path');
 const url = require('url');
@@ -12,30 +14,34 @@ const translations = {
     customRegionPlaceholder: 'Masukkan nama daerah baru...', saveLocBtn: 'Simpan Lokasi',
     audioSettings: 'Audio Adzan', audioMode: 'Mode Audio', modeAll: 'Sama untuk semua waktu (Default)',
     modeCustom: 'Berbeda tiap waktu', customAudioLabel: 'Pilih file .mp3 untuk masing-masing waktu:',
-    allAudioLabel: 'Pilih file .mp3 utama:', saveAudioBtn: 'Simpan Audio', testBtn: 'Test Utama', 
-    scheduleTitle: 'Jadwal Salat Hari Ini', fajr: 'Subuh', dhuhr: 'Dzuhur', asr: 'Ashar', 
+    allAudioLabel: 'Pilih file .mp3 utama:', saveAudioBtn: 'Simpan Audio', testBtn: 'Test Utama',
+    scheduleTitle: 'Jadwal Salat Hari Ini', fajr: 'Subuh', dhuhr: 'Dzuhur', asr: 'Ashar',
     maghrib: 'Maghrib', isha: 'Isya', customOption: 'Gunakan Koordinat Kustom',
     alertLocSave: 'Lokasi berhasil disimpan! Jadwal diperbarui.', alertCustomEmpty: 'Harap masukkan nama daerah kustom!',
     alertCoordInvalid: 'Harap masukkan angka koordinat Latitude & Longitude yang valid!',
     alertAudioSave: 'Pengaturan Audio Disimpan!', alertTest: 'Memutar Adzan... Pastikan volume PC menyala.',
     hijriLabel: 'Tanggal Hijriah',
+    scheduleUnavailable: 'Jadwal belum tersedia. Hubungkan internet sekali untuk membuat cache.',
     saveAudioNote: 'Catatan: Klik "Simpan Audio" untuk memperbarui suara adzan sesuai file baru',
-    saveLocNote: 'Catatan: Klik "Simpan Lokasi" untuk memperbarui jadwal salat sesuai lokasi baru'
+    saveLocNote: 'Catatan: Klik "Simpan Lokasi" untuk memperbarui jadwal salat sesuai lokasi baru',
+    footerText: 'Hak Cipta & Copy; 2026 Mu\'azzin Project. Dikembangkan dengan sepenuh hati.'
   },
   en: {
     locSettings: 'Location Settings', chooseRegion: 'Select Region', customRegionName: 'Custom Region Name',
     customRegionPlaceholder: 'Enter new region name...', saveLocBtn: 'Save Location',
     audioSettings: 'Adzan Audio', audioMode: 'Audio Mode', modeAll: 'Same for all times (Default)',
     modeCustom: 'Different for each time', customAudioLabel: 'Select .mp3 file for each time:',
-    allAudioLabel: 'Select main .mp3 file:', saveAudioBtn: 'Save Audio', testBtn: 'Main Test', 
-    scheduleTitle: 'Today\'s Prayer Schedule', fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', 
+    allAudioLabel: 'Select main .mp3 file:', saveAudioBtn: 'Save Audio', testBtn: 'Main Test',
+    scheduleTitle: 'Today\'s Prayer Schedule', fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr',
     maghrib: 'Maghrib', isha: 'Isha', customOption: 'Use Custom Coordinates',
     alertLocSave: 'Location saved! Schedule updated.', alertCustomEmpty: 'Please enter a custom region name!',
     alertCoordInvalid: 'Please enter valid Latitude & Longitude coordinates!',
     alertAudioSave: 'Audio Settings Saved!', alertTest: 'Playing Adzan... Make sure PC volume is up.',
     hijriLabel: 'Hijri Date',
+    scheduleUnavailable: 'Schedule is not available yet. Connect to the internet once to create cache.',
     saveAudioNote: 'Note: Click "Save Audio" to update the adzan sound according to the new file',
-    saveLocNote: 'Note: Click "Save Location" to update prayer times according to the new location'
+    saveLocNote: 'Note: Click "Save Location" to update prayer times according to the new location',
+    footerText: 'Copyright & Copy; 2026 Mu\'azzin Project. Developed with heartfelt dedication.'
   }
 };
 
@@ -62,7 +68,7 @@ function applyLanguage() {
   updateTimeUI(); // Segera perbarui format tanggal jam ke bahasa baru
 }
 
-window.toggleLanguage = async function() {
+window.toggleLanguage = async function () {
   currentLang = currentLang === 'id' ? 'en' : 'id';
   await ipcRenderer.invoke('set-config', { language: currentLang });
   applyLanguage();
@@ -70,14 +76,16 @@ window.toggleLanguage = async function() {
 
 // === WIDGET JAM REALTIME & HIJRIAH (NATIVE ENGINE) ===
 function startLiveClock() {
-  setInterval(() => {
+  if (liveClockInterval) return;
+
+  liveClockInterval = setInterval(() => {
     updateTimeUI();
   }, 1000);
 }
 
 function updateTimeUI() {
   const now = new Date();
-  
+
   // 1. Format Jam:Menit:Detik
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -92,9 +100,9 @@ function updateTimeUI() {
   // 3. Format Tanggal Hijriah secara Otomatis menggunakan Engine Intl Bawaan Chromium
   const hijriOptions = { calendar: 'islamic-umalqura', day: 'numeric', month: 'long', year: 'numeric' };
   let hijriStr = new Intl.DateTimeFormat(localeStr, hijriOptions).format(now);
-  
+
   // Merapikan string akhiran tahun Hijriah (misal AH / H) agar lebih ramah dibaca
-  if(currentLang === 'id') {
+  if (currentLang === 'id') {
     hijriStr = hijriStr.replace('AH', 'H').replace('ERA1', 'H');
   }
   document.getElementById('hijriDate').textContent = hijriStr;
@@ -115,7 +123,7 @@ async function playLocalAdzan(prayerType = 'Default') {
     audioPath = path.join(__dirname, '..', 'assets', 'adzan.mp3');
   }
 
-try {
+  try {
     if (currentTestAudio && !currentTestAudio.paused) {
       currentTestAudio.pause();
       currentTestAudio.currentTime = 0;
@@ -123,7 +131,7 @@ try {
 
     const fileUrl = url.pathToFileURL(audioPath).href;
     currentTestAudio = new window.Audio(fileUrl);
-    
+
     // FIX VISUAL: Saat audio selesai diputar sampai akhir, reset tombol!
     currentTestAudio.onended = () => {
       resetAudioVisual();
@@ -144,7 +152,7 @@ const cityCoordinates = {
   surabaya: { lat: -7.2504, lon: 112.7688 }, sambas: { lat: 1.3616, lon: 109.3089 }
 };
 
-window.toggleLocationInputs = async function() {
+window.toggleLocationInputs = async function () {
   const citySelect = document.getElementById('citySelect').value;
   const customDiv = document.getElementById('customLocationDiv');
   if (citySelect === 'custom') {
@@ -163,7 +171,7 @@ window.toggleLocationInputs = async function() {
   }
 }
 
-window.toggleAudioInputs = function() {
+window.toggleAudioInputs = function () {
   const adzanMode = document.getElementById('adzanMode').value;
   const customDiv = document.getElementById('customAudioDiv');
   const allDiv = document.getElementById('allAudioDiv');
@@ -176,14 +184,16 @@ window.toggleAudioInputs = function() {
   }
 }
 
-async function renderPrayerTimes() {
-  const data = await ipcRenderer.invoke('get-prayer-times');
+async function renderPrayerTimes(prayerTimes = null) {
+  const data = prayerTimes || await ipcRenderer.invoke('get-prayer-times');
   const container = document.getElementById('schedule');
   container.innerHTML = '';
   const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-  
+  let hasSchedule = false;
+
   prayers.forEach((prayer) => {
-    if(data[prayer]) {
+    if (data?.[prayer]) {
+      hasSchedule = true;
       const displayPrayerName = translations[currentLang][prayer.toLowerCase()] || prayer;
       container.innerHTML += `
         <div class="flex justify-between items-center p-3 rounded-lg bg-gray-800/50 border border-gray-700/50 hover:border-green-500/50 transition">
@@ -193,13 +203,23 @@ async function renderPrayerTimes() {
       `;
     }
   });
+
+  if (!hasSchedule) {
+    container.innerHTML = `
+      <div class="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-200 text-sm">
+        ${translations[currentLang].scheduleUnavailable}
+      </div>
+    `;
+  }
+
+  return data;
 }
 
 async function init() {
   const config = await ipcRenderer.invoke('get-config');
-  currentLang = config.language || 'id'; 
+  currentLang = config.language || 'id';
   const citySelectEl = document.getElementById('citySelect');
-  
+
   citySelectEl.innerHTML = `
     <option value="jakarta">Jakarta</option>
     <option value="bandung">Bandung</option>
@@ -207,7 +227,7 @@ async function init() {
     <option value="sambas">Sambas</option>
     <option value="custom" data-i18n="customOption">Gunakan Koordinat Kustom</option>
   `;
-  
+
   if (config.customCities) {
     Object.keys(config.customCities).forEach(cityName => {
       const option = document.createElement('option');
@@ -216,7 +236,7 @@ async function init() {
       citySelectEl.insertBefore(option, citySelectEl.lastElementChild);
     });
   }
-  
+
   document.getElementById('citySelect').value = config.city || 'jakarta';
   document.getElementById('lat').value = config.latitude;
   document.getElementById('lon').value = config.longitude;
@@ -232,11 +252,11 @@ async function init() {
   applyLanguage();
   toggleLocationInputs();
   toggleAudioInputs();
-  renderPrayerTimes();
+  await renderPrayerTimes();
   startLiveClock(); // Nyalakan mesin jam detik berjalan
 }
 
-window.saveLocation = async function() {
+window.saveLocation = async function () {
   const citySelect = document.getElementById('citySelect').value;
   let lat = parseFloat(document.getElementById('lat').value);
   let lon = parseFloat(document.getElementById('lon').value);
@@ -251,10 +271,10 @@ window.saveLocation = async function() {
     updatedCustomCities[customName.toLowerCase()] = { lat: lat, lon: lon };
 
     await ipcRenderer.invoke('set-config', { city: customName.toLowerCase(), latitude: lat, longitude: lon, customCities: updatedCustomCities });
-    
+
     const msg = currentLang === 'id' ? `Daerah "${customName}" berhasil disimpan!` : `Region "${customName}" saved!`;
     alert(msg);
-    await init(); 
+    await init();
     return;
   }
 
@@ -263,7 +283,7 @@ window.saveLocation = async function() {
   renderPrayerTimes();
 }
 
-window.saveAudio = async function() {
+window.saveAudio = async function () {
   const adzanMode = document.getElementById('adzanMode').value;
   let newConfig = { adzanMode: adzanMode };
   const currentConfig = await ipcRenderer.invoke('get-config');
@@ -279,10 +299,10 @@ window.saveAudio = async function() {
       Isha: getSelectedFilePath('audioIsha') || currentConfig.adzanCustom?.Isha || ''
     };
   }
-  
+
   await ipcRenderer.invoke('set-config', newConfig);
   alert(translations[currentLang].alertAudioSave);
-  await init(); 
+  await init();
 }
 
 // Fungsi tambahan untuk mereset tampilan tombol test jika audio dihentikan secara manual
@@ -295,7 +315,7 @@ function resetAudioVisual() {
   }
 }
 
-window.testAdzan = async function() {
+window.testAdzan = async function () {
   // Tangkap tombol yang baru saja diklik
   const targetBtn = document.activeElement.closest('button') || document.activeElement;
 
@@ -303,7 +323,7 @@ window.testAdzan = async function() {
     currentTestAudio.pause();
     currentTestAudio.currentTime = 0;
     resetAudioVisual(); // Kembalikan ke wujud asli saat distop
-    return; 
+    return;
   }
 
   // Animasi Tombol Stop yang lebih "Kalem" (Kecil, Transparan, Elegan)
@@ -311,7 +331,7 @@ window.testAdzan = async function() {
     currentActiveButton = targetBtn;
     originalButtonHTML = targetBtn.innerHTML;
     originalButtonClasses = targetBtn.className;
-    
+
     // UBAH KELAS TAILWIND DI SINI: lebih kecil (w-fit), warna transparan, bentuk oval
     targetBtn.className = "flex items-center justify-center gap-2 px-4 py-1.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 rounded-full transition-all text-sm w-fit mx-auto mt-2";
     targetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /></svg> Stop`;
@@ -325,7 +345,7 @@ window.testAdzan = async function() {
   }
 }
 
-window.testSpecificAdzan = function(prayerType) {
+window.testSpecificAdzan = function (prayerType) {
   const targetBtn = document.activeElement.closest('button') || document.activeElement;
 
   if (currentTestAudio && !currentTestAudio.paused) {
@@ -334,13 +354,13 @@ window.testSpecificAdzan = function(prayerType) {
     resetAudioVisual();
     return;
   }
-  
+
   // Animasi Tombol Stop Custom yang lebih "Kalem"
   if (targetBtn && targetBtn.tagName === 'BUTTON') {
     currentActiveButton = targetBtn;
     originalButtonHTML = targetBtn.innerHTML;
     originalButtonClasses = targetBtn.className;
-    
+
     targetBtn.className = "flex items-center justify-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 rounded-full transition-all text-xs w-fit mt-2";
     targetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Stop`;
   }
@@ -350,6 +370,12 @@ window.testSpecificAdzan = function(prayerType) {
 
 ipcRenderer.on('trigger-adzan', (event, prayerType) => {
   playLocalAdzan(prayerType);
+});
+
+ipcRenderer.on('prayer-times-updated', (event, timings) => {
+  if (timings && Object.keys(timings).length > 0) {
+    renderPrayerTimes(timings);
+  }
 });
 
 document.addEventListener('DOMContentLoaded', init);
@@ -368,7 +394,7 @@ btnInstallUpdate.addEventListener('click', () => {
   ipcRenderer.send('restart_app');
 });
 
-btnIgnoreUpdate.addEventListener('click', () => {  
+btnIgnoreUpdate.addEventListener('click', () => {
   updateBanner.classList.add('hidden');
   updateBanner.classList.remove('flex');
 });
@@ -379,3 +405,41 @@ ipcRenderer.on('app_version', (event, version) => {
     appVersionEl.innerText = `v${version}`;
   }
 });
+
+// ==========================================
+// FITUR AUTO-REFRESH (SENSOR INTERNET & WAKTU)
+// ==========================================
+
+async function refreshPrayerTimes() {
+  if (prayerRefreshInProgress) return;
+  prayerRefreshInProgress = true;
+
+  try {
+    const jadwalBaru = await ipcRenderer.invoke('refresh-prayer-times');
+
+    // Memeriksa apakah jadwalBaru memiliki isi
+    if (jadwalBaru && Object.keys(jadwalBaru).length > 0) {
+
+      renderPrayerTimes(jadwalBaru); // Fungsi untuk menampilkan jadwal ke UI
+      console.log("Jadwal berhasil dimuat ke layar.");
+
+    } else {
+      console.error("Gagal mendapatkan jadwal sholat (Tidak ada cache/internet).");
+    }
+  } catch (error) {
+    console.error("Terjadi kesalahan saat memuat jadwal:", error);
+  } finally {
+    prayerRefreshInProgress = false;
+  }
+}
+
+// 1. Panggil otomatis saat koneksi internet pulih kembali
+window.addEventListener('online', () => {
+  console.log("Koneksi pulih, memperbarui jadwal...");
+  refreshPrayerTimes();
+});
+
+// 2. Panggil otomatis setiap 1 jam (3.600.000 milidetik)
+setInterval(() => {
+  refreshPrayerTimes();
+}, 3600000);

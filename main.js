@@ -69,6 +69,30 @@ function showMainWindow() {
   mainWindow.focus();
 }
 
+function sendToRenderer(channel, payload) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send(channel, payload);
+  }
+}
+
+function playPrayerAudio(prayerType) {
+  sendToRenderer('trigger-adzan', prayerType);
+}
+
+function notifyPrayerTimesUpdated(timings) {
+  sendToRenderer('prayer-times-updated', timings);
+}
+
+function shouldClearScheduleOnEmpty(newConfig) {
+  return ['city', 'latitude', 'longitude', 'method'].some((key) => (
+    Object.prototype.hasOwnProperty.call(newConfig, key)
+  ));
+}
+
+async function refreshPrayerSchedule(options = {}) {
+  return await schedulePrayerNotifications(playPrayerAudio, notifyPrayerTimesUpdated, options);
+}
+
 function createWindow(startHidden = false) {
   mainWindow = new BrowserWindow({
     width: 450,
@@ -123,17 +147,17 @@ ipcMain.handle('get-config', () => {
 
 ipcMain.handle('set-config', async (event, newConfig) => {
   setConfig(newConfig);
-  await schedulePrayerNotifications((prayerType) => {
-    if (mainWindow) {
-      mainWindow.webContents.send('trigger-adzan', prayerType);
-    }
-  });
+  await refreshPrayerSchedule({ clearOnEmpty: shouldClearScheduleOnEmpty(newConfig) });
 
   return true;
 });
 
 ipcMain.handle('get-prayer-times', async () => {
   return await getPrayerTimes();
+});
+
+ipcMain.handle('refresh-prayer-times', async () => {
+  return await refreshPrayerSchedule();
 });
 
 if (gotTheLock) {
@@ -146,11 +170,7 @@ if (gotTheLock) {
     createWindow(shouldStartHidden()); // <-- Cukup satu createWindow di sini
     try { createTray(); } catch (error) { }
 
-    await schedulePrayerNotifications((prayerType) => {
-      if (mainWindow) {
-        mainWindow.webContents.send('trigger-adzan', prayerType);
-      }
-    });
+    await refreshPrayerSchedule();
 
     autoUpdater.autoDownload = true;
     autoUpdater.checkForUpdatesAndNotify();
