@@ -6,7 +6,7 @@ const TIME_SOURCES = [
     parse: (data) => Date.parse(data?.dateTime + 'Z'),
   },
   {
-    url: 'http://worldtimeapi.org/api/timezone/Etc/UTC',
+    url: 'https://worldtimeapi.org/api/timezone/Etc/UTC',
     parse: (data) => Date.parse(data?.utc_datetime || data?.datetime),
   },
   {
