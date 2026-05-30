@@ -3,6 +3,7 @@ const { getConfig } = require('./config');
 const fs = require('fs');
 const path = require('path');
 const { app } = require('electron');
+const { getTrueDate } = require('./timeSync');
 
 const cachePath = path.join(app.getPath('userData'), 'prayer-cache.json');
 const CACHE_VERSION = 2;
@@ -27,7 +28,7 @@ function getCacheContext(config, date) {
 function buildCachePayload(context, monthData) {
   return {
     version: CACHE_VERSION,
-    savedAt: new Date().toISOString(),
+    savedAt: getTrueDate().toISOString(),
     ...context,
     data: monthData,
   };
@@ -77,7 +78,7 @@ function writeCache(context, monthData) {
 
 async function getPrayerTimes() {
   const config = getConfig();
-  const date = new Date();
+  const date = getTrueDate();
   const context = getCacheContext(config, date);
   const day = date.getDate() - 1; // Array index tanggal hari ini
 

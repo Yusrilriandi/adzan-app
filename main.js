@@ -4,6 +4,7 @@ const path = require('path');
 const { schedulePrayerNotifications } = require('./services/scheduler');
 const { getConfig, setConfig } = require('./services/config');
 const { getPrayerTimes } = require('./services/prayerTimes');
+const { syncTime } = require('./services/timeSync');
 const { autoUpdater } = require('electron-updater');
 
 const APP_ID = 'com.halovie.adzanapp';
@@ -190,6 +191,7 @@ if (gotTheLock) {
     createWindow(shouldStartHidden()); // <-- Cukup satu createWindow di sini
     try { createTray(); } catch (error) { }
 
+    await syncTime();
     await refreshPrayerSchedule();
 
     autoUpdater.autoDownload = true;

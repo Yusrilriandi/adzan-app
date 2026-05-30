@@ -216,6 +216,9 @@
   .relative {
     position: relative;
   }
+  .inset-x-0 {
+    inset-inline: calc(var(--spacing) * 0);
+  }
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
@@ -224,9 +227,6 @@
   }
   .right-0 {
     right: calc(var(--spacing) * 0);
-  }
-  .left-1\/2 {
-    left: calc(1 / 2 * 100%);
   }
   .z-50 {
     z-index: 50;
@@ -356,10 +356,6 @@
   }
   .flex-grow {
     flex-grow: 1;
-  }
-  .-translate-x-1\/2 {
-    --tw-translate-x: calc(calc(1 / 2 * 100%) * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .translate-x-1\/4 {
     --tw-translate-x: calc(1 / 4 * 100%);
