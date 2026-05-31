@@ -4,7 +4,7 @@ const path = require('path');
 const { schedulePrayerNotifications } = require('./services/scheduler');
 const { getConfig, setConfig } = require('./services/config');
 const { getPrayerTimes } = require('./services/prayerTimes');
-const { syncTime } = require('./services/timeSync');
+const { syncTime, startAggressiveSync, getOffsetMs } = require('./services/timeSync');
 const { autoUpdater } = require('electron-updater');
 
 const APP_ID = 'com.halovie.adzanapp';
@@ -166,6 +166,10 @@ ipcMain.handle('save-safe-audio', (event, sourcePath, prefix) => {
   }
 });
 
+ipcMain.handle('get-time-offset', () => {
+  return getOffsetMs();
+});
+
 ipcMain.handle('set-config', async (event, newConfig) => {
   setConfig(newConfig);
   await refreshPrayerSchedule({ clearOnEmpty: shouldClearScheduleOnEmpty(newConfig) });
@@ -178,6 +182,8 @@ ipcMain.handle('get-prayer-times', async () => {
 });
 
 ipcMain.handle('refresh-prayer-times', async () => {
+  console.log('[System] Internet connection detected, syncing time...');
+  await syncTime(); // Re-sync time when network recovers
   return await refreshPrayerSchedule();
 });
 
@@ -191,7 +197,13 @@ if (gotTheLock) {
     createWindow(shouldStartHidden()); // <-- Cukup satu createWindow di sini
     try { createTray(); } catch (error) { }
 
-    await syncTime();
+    startAggressiveSync(async () => {
+      console.log('[System] Time synced successfully. Forcing UI to refresh...');
+      if (mainWindow) {
+        mainWindow.webContents.send('force-refresh-ui');
+      }
+    });
+    
     await refreshPrayerSchedule();
 
     autoUpdater.autoDownload = true;

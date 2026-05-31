@@ -4,6 +4,7 @@ let originalButtonHTML = '';
 let originalButtonClasses = '';
 let liveClockInterval = null;
 let prayerRefreshInProgress = false;
+
 const { ipcRenderer, webUtils } = require('electron');
 const path = require('path');
 const url = require('url');
@@ -49,6 +50,13 @@ const translations = {
 
 let currentLang = 'id';
 
+let globalTimeOffset = 0;
+
+// Fungsi pengganti new Date() bawaan Windows
+function getTrueFrontendDate() {
+  return new Date(Date.now() + globalTimeOffset);
+}
+
 function getSelectedFilePath(inputId) {
   const file = document.getElementById(inputId)?.files[0];
   if (!file) return '';
@@ -86,7 +94,7 @@ function startLiveClock() {
 }
 
 function updateTimeUI() {
-  const now = new Date();
+  const now = getTrueFrontendDate();
 
   // 1. Format Jam:Menit:Detik
   const hours = String(now.getHours()).padStart(2, '0');
@@ -218,6 +226,7 @@ async function renderPrayerTimes(prayerTimes = null) {
 }
 
 async function init() {
+  await syncFrontendOffset();
   const config = await ipcRenderer.invoke('get-config');
   currentLang = config.language || 'id';
   const citySelectEl = document.getElementById('citySelect');
@@ -472,3 +481,23 @@ window.addEventListener('online', () => {
 setInterval(() => {
   refreshPrayerTimes();
 }, 3600000);
+
+ipcRenderer.on('force-refresh-ui', async () => {
+  console.log("Sinyal backend diterima, menyelaraskan jam layar depan...");
+  await syncFrontendOffset(); // Tarik offset terbaru dulu
+  refreshPrayerTimes();       // Baru muat ulang jadwal
+});
+
+
+// Fungsi untuk menarik angka offset dari main.js
+async function syncFrontendOffset() {
+  try {
+    globalTimeOffset = await ipcRenderer.invoke('get-time-offset');
+    console.log("Jam Layar Depan Tersinkronisasi. Offset:", globalTimeOffset, "ms");
+  } catch (error) {
+    console.error("Gagal menarik offset ke layar depan", error);
+  }
+}
+
+// Tarik offset saat aplikasi baru pertama kali dibuka
+syncFrontendOffset();

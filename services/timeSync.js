@@ -1,4 +1,4 @@
-const axios = require('axios');
+const { net } = require('electron');
 
 const TIME_SOURCES = [
   {
@@ -16,15 +16,19 @@ const TIME_SOURCES = [
 ];
 
 let offsetMs = 0;
+let isSynced = false;
 
 async function fetchTimeFromSource(source) {
-  const response = await axios.get(source.url, { timeout: 8000 });
-  const internetTime = source.parse(response.data);
-
-  if (!Number.isFinite(internetTime)) {
-    throw new Error(`Invalid time from ${source.url}`);
-  }
-
+  // net.fetch uses Chromium's network engine, bypassing Windows Defender blocks
+  const response = await net.fetch(source.url, { 
+    signal: AbortSignal.timeout(8000)
+  });
+  
+  if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+  const data = await response.json();
+  const internetTime = source.parse(data);
+  if (!Number.isFinite(internetTime)) throw new Error(`Invalid time from ${source.url}`);
+  
   return internetTime;
 }
 
@@ -33,18 +37,41 @@ async function syncTime() {
     try {
       const internetTime = await fetchTimeFromSource(source);
       offsetMs = internetTime - Date.now();
-      return offsetMs;
+      isSynced = true;
+      console.log(`[TimeSync] Success from ${source.url}. Offset: ${offsetMs}ms`);
+      return true;
     } catch (error) {
-      console.warn(`Gagal sinkronisasi dari ${source.url}:`, error.message || error.code);
+      console.warn(`[TimeSync] Failed from ${source.url}:`, error.message);
     }
   }
+  console.error('[TimeSync] Offline/Failed all sources.');
+  return false;
+}
 
-  console.error('Gagal sinkronisasi waktu dari semua sumber. Menggunakan jam lokal (offset = 0).');
-  return offsetMs;
+// Aggressive polling: Keep trying every 10 seconds until successful
+function startAggressiveSync(onSuccessCallback) {
+  if (isSynced) return;
+  
+  syncTime().then((success) => {
+    if (success) {
+      if (onSuccessCallback) onSuccessCallback();
+    } else {
+      console.log('[TimeSync] Retrying in 10 seconds...');
+      setTimeout(() => startAggressiveSync(onSuccessCallback), 10000);
+    }
+  });
 }
 
 function getTrueDate() {
   return new Date(Date.now() + offsetMs);
 }
 
-module.exports = { syncTime, getTrueDate };
+module.exports = { syncTime, getTrueDate, startAggressiveSync };
+
+// Tambahkan fungsi ini di atas module.exports
+function getOffsetMs() {
+  return offsetMs;
+}
+
+// Ubah baris module.exports Anda menjadi seperti ini:
+module.exports = { syncTime, getTrueDate, startAggressiveSync, getOffsetMs };
