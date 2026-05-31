@@ -187,6 +187,12 @@ ipcMain.handle('refresh-prayer-times', async () => {
   return await refreshPrayerSchedule();
 });
 
+ipcMain.handle('force-re-sync-time', async () => {
+  console.log('[System] Time jump detected by frontend! Forcing re-sync...');
+  await syncTime(); // Download true time again
+  return getOffsetMs(); // Return the fresh offset
+});
+
 if (gotTheLock) {
   app.on('second-instance', () => {
     showMainWindow();

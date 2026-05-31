@@ -501,3 +501,46 @@ async function syncFrontendOffset() {
 
 // Tarik offset saat aplikasi baru pertama kali dibuka
 syncFrontendOffset();
+
+// ==========================================
+// ADVANCED TIME JUMP / DRIFT DETECTOR 
+// (Resilient to CPU Lag / Thread Blocking)
+// ==========================================
+let lastDateNow = Date.now();
+let lastPerfNow = performance.now();
+
+setInterval(async () => {
+  const currentDateNow = Date.now();
+  const currentPerfNow = performance.now();
+
+  // How much did the wall clock change?
+  const deltaDate = currentDateNow - lastDateNow; 
+  // How much actual CPU execution time passed?
+  const deltaPerf = currentPerfNow - lastPerfNow; 
+
+  // Compare the difference
+  const discrepancy = Math.abs(deltaDate - deltaPerf);
+
+  // If discrepancy > 3000ms, the system clock was manually changed 
+  // or the PC woke up from Sleep. (CPU lag will keep discrepancy near 0).
+  if (discrepancy > 3000) {
+    console.warn("Time anomaly detected (Clock changed or Wake from Sleep)! Forcing re-sync...");
+    
+    try {
+      // 1. Force backend to re-fetch global time
+      globalTimeOffset = await ipcRenderer.invoke('force-re-sync-time');
+      console.log("System recovered. New offset:", globalTimeOffset, "ms");
+      
+      // 2. Refresh UI immediately
+      if (typeof refreshPrayerTimes === 'function') {
+        refreshPrayerTimes();
+      }
+    } catch (e) {
+      console.error("Failed to re-sync after time anomaly:", e);
+    }
+  }
+  
+  // Reset for the next tick
+  lastDateNow = currentDateNow;
+  lastPerfNow = currentPerfNow;
+}, 1000);
